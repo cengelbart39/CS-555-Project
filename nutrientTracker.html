@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Tracker</title>
+    <style>
+        .bar-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            margin: 20px 0;
+            position: relative;
+        }
+        .bar {
+            height: 30px;
+            background-color: #4caf50;
+            width: 0;
+        }
+        .goal-line {
+            position: absolute;
+            height: 30px;
+            width: 2px;
+            background-color: black;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nutrition Tracker</h1>
+    <div>
+        <label for="tracking-period">Tracking Period: </label>
+        <select id="tracking-period">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="protein">Protein Goal: </label>
+        <input type="number" id="protein-goal" value="100">
+        <label for="protein">Current Protein: </label>
+        <input type="number" id="current-protein" value="80">
+    </div>
+    <div class="bar-container">
+        <div class="bar" id="protein-bar"></div>
+        <div class="goal-line" id="protein-goal-line"></div>
+    </div>
+
+    <div>
+        <label for="carbs">Carbs Limit: </label>
+        <input type="number" id="carbs-goal" value="200">
+        <label for="carbs">Current Carbs: </label>
+        <input type="number" id="current-carbs" value="150">
+    </div>
+    <div class="bar-container">
+        <div class="bar" id="carbs-bar"></div>
+        <div class="goal-line" id="carbs-goal-line"></div>
+    </div>
+
+    <div>
+        <label for="fat">Fat Limit: </label>
+        <input type="number" id="fat-goal" value="70">
+        <label for="fat">Current Fat: </label>
+        <input type="number" id="current-fat" value="50">
+    </div>
+    <div class="bar-container">
+        <div class="bar" id="fat-bar"></div>
+        <div class="goal-line" id="fat-goal-line"></div>
+    </div>
+
+    <script>
+        function updateBars() {
+            const proteinGoal = document.getElementById('protein-goal').value;
+            const currentProtein = document.getElementById('current-protein').value;
+            const proteinPercent = (currentProtein / proteinGoal) * 100;
+            document.getElementById('protein-bar').style.width = proteinPercent + '%';
+            document.getElementById('protein-goal-line').style.left = '100%';
+
+            const carbsGoal = document.getElementById('carbs-goal').value;
+            const currentCarbs = document.getElementById('current-carbs').value;
+            const carbsPercent = (currentCarbs / carbsGoal) * 100;
+            document.getElementById('carbs-bar').style.width = carbsPercent + '%';
+            document.getElementById('carbs-goal-line').style.left = '100%';
+
+            const fatGoal = document.getElementById('fat-goal').value;
+            const currentFat = document.getElementById('current-fat').value;
+            const fatPercent = (currentFat / fatGoal) * 100;
+            document.getElementById('fat-bar').style.width = fatPercent + '%';
+            document.getElementById('fat-goal-line').style.left = '100%';
+        }
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', updateBars);
+        });
+
+        document.getElementById('tracking-period').addEventListener('change', function() {
+            const period = this.value;
+            // Adjust goals based on the selected period if needed
+            // For example, multiply daily goals by 7 for weekly, by 30 for monthly, etc.
+            updateBars();
+        });
+
+        updateBars();
+    </script>
+</body>
+</html>
