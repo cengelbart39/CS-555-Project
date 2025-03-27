@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Save Meals</title>
+</head>
+<body>
+  <h1>Meal Tracker</h1>
+
+  <form id="meal-form">
+    <label for="meal-name">Meal Name:</label>
+    <input type="text" id="meal-name" name="mealName" required><br><br>
+
+    <label for="calories">Calories:</label>
+    <input type="number" id="calories" name="calories" required><br><br>
+
+    <button type="submit">Save Meal</button>
+  </form>
+
+  <h2>Saved Meals</h2>
+  <ul id="meal-list">
+    <!-- Saved meals will appear here -->
+  </ul>
+
+  <script>
+    const form = document.getElementById('meal-form');
+    const mealList = document.getElementById('meal-list');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const mealName = document.getElementById('meal-name').value;
+      const calories = document.getElementById('calories').value;
+
+      const listItem = document.createElement('li');
+      listItem.textContent = `${mealName} - ${calories} calories`;
+      mealList.appendChild(listItem);
+
+      form.reset();
+    });
+  </script>
+</body>
+</html>
