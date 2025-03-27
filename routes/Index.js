@@ -19,6 +19,15 @@ router.get('/', (req, res) => {
   }
 });
 
+//meals route
+router.get('/meals', (req, res) => {
+  if (req.session.user) {
+    res.sendFile(path.join(__dirname, '..', 'public', 'meals.html'));
+  } else {
+    res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
+  }
+});
+
 // Login routes
 router.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
