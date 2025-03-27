@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import open from 'open'
 
 import configRoutes from './routes/index.js';
 
@@ -14,8 +15,16 @@ configRoutes(app);
 
 app.use(express.static(__dirname));
 
-
-app.listen(3000, () => {
-  console.log("We've now got a server!");
-  console.log('Your routes will be running on http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, async () => {
+  try{
+    console.log("We've now got a server!");
+    console.log(`server is running at http;//localhost${PORT}`);
+    console.log('opening browser');
+    await open(`http:/localhost:${PORT}`);
+    console.log('browser opened successfully')
+  } catch (e) {
+    console.error('failed to open browser')
+  }
+   
 });
