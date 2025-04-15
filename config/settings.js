@@ -2,5 +2,5 @@
 
 export const mongoConfig = {
   serverUrl: 'mongodb://localhost:27017/',
-  database: 'CS-555-Project'
+  database: 'NutritionTrackerDB'
 };
