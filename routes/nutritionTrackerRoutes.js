@@ -23,7 +23,8 @@ router.use(ensureAuthenticated);
 router.get('/', async (req, res) => {
   try {
     const userId = req.session.user._id;
-    const nutritionData = await getUserNutritionData(userId);
+    const { period = 'daily' } = req.query;
+    const nutritionData = await getUserNutritionData(userId, period);
     res.json(nutritionData);
   } catch (e) {
     res.status(500).json({ error: e.message || 'Failed to get nutrition data' });
@@ -34,7 +35,9 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const userId = req.session.user._id;
-    const newRecord = await addNutritionRecord(userId, req.body);
+    const { period } = req.query; //Daily, weekly, monthly
+    const { protein, carbs, fat } = req.body;
+    const newRecord = await addNutritionRecord(userId, protein, carbs, fat, period);
     res.status(201).json(newRecord);
   } catch (e) {
     res.status(400).json({ error: e.message || 'Failed to add nutrition record' });
@@ -46,7 +49,8 @@ router.put('/:id', async (req, res) => {
   try {
     const userId = req.session.user._id;
     const recordId = req.params.id;
-    const result = await updateNutritionRecord(userId, recordId, req.body);
+    const { period = 'daily' } = req.query;
+    const result = await updateNutritionRecord(userId, recordId, period, req.body);
     res.json(result);
   } catch (e) {
     res.status(400).json({ error: e.message || 'Failed to update nutrition record' });
@@ -58,7 +62,8 @@ router.delete('/:id', async (req, res) => {
   try {
     const userId = req.session.user._id;
     const recordId = req.params.id;
-    const result = await deleteNutritionRecord(userId, recordId);
+    const { period = 'daily' } = req.query;
+    const result = await deleteNutritionRecord(userId, recordId, period);
     res.json(result);
   } catch (e) {
     res.status(400).json({ error: e.message || 'Failed to delete nutrition record' });

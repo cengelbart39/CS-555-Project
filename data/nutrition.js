@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { users } from '../config/mongoCollections.js';
 
 // Get all nutrition records for a user
-export const getUserNutritionData = async (userId) => {
+export const getUserNutritionData = async (userId, period = 'daily') => {
   if (!userId || !ObjectId.isValid(userId)) {
     throw new Error('Invalid user ID');
   }
@@ -14,16 +14,17 @@ export const getUserNutritionData = async (userId) => {
     throw new Error('User not found');
   }
 
-  return user.nutritionData || [];
-};
+  if (!user.nutritionData || !user.nutritionData[period]) return [];
+
+  return user.nutritionData[period];
+}
 
 // Add a nutrition record
-export const addNutritionRecord = async (userId, nutritionData) => {
+export const addNutritionRecord = async (userId, protein, carbs, fat, period='daily') => {
   if (!userId || !ObjectId.isValid(userId)) {
     throw new Error('Invalid user ID');
   }
 
-  const { protein, carbs, fat, date } = nutritionData;
   
   // Validation
   if (protein === undefined || carbs === undefined || fat === undefined) {
@@ -50,7 +51,7 @@ export const addNutritionRecord = async (userId, nutritionData) => {
   const usersCollection = await users();
   const updateResult = await usersCollection.updateOne(
     { _id: new ObjectId(userId) },
-    { $push: { nutritionData: newRecord } }
+    { $push: { ['nutritionData.${period}']: newRecord } }
   );
 
   if (!updateResult.matchedCount) {
@@ -65,7 +66,8 @@ export const addNutritionRecord = async (userId, nutritionData) => {
 };
 
 // Update a nutrition record
-export const updateNutritionRecord = async (userId, recordId, updatedData) => {
+export const updateNutritionRecord = async (userId, recordId, period, updatedData) => {
+  
   if (!userId || !ObjectId.isValid(userId)) {
     throw new Error('Invalid user ID');
   }
@@ -73,6 +75,15 @@ export const updateNutritionRecord = async (userId, recordId, updatedData) => {
   if (!recordId || !ObjectId.isValid(recordId)) {
     throw new Error('Invalid record ID');
   }
+
+  const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  const periodData = user.nutritionData?.[period];
+  if (!periodData) throw new Error(`No data for period: ${period}`);
+
+
+  const index = periodData.findIndex(entry => entry._id.toString() === recordId);
+  if (index === -1) throw new Error('Record not found');
+
 
   const { protein, carbs, fat } = updatedData;
   
@@ -98,12 +109,25 @@ export const updateNutritionRecord = async (userId, recordId, updatedData) => {
   if (carbs !== undefined) updateFields['nutritionData.$.carbs'] = parseFloat(carbs);
   if (fat !== undefined) updateFields['nutritionData.$.fat'] = parseFloat(fat);
   
+  const updatedRecord = {
+    ...periodData[index],
+    ...updatedData,
+    protein: parseFloat(updatedData.protein),
+    carbs: parseFloat(updatedData.carbs),
+    fat: parseFloat(updatedData.fat),
+    updatedAt: new Date()
+  };
+
   const updateResult = await usersCollection.updateOne(
-    { 
+    {
       _id: new ObjectId(userId),
-      'nutritionData._id': new ObjectId(recordId) 
+      [`nutritionData.${period}._id`]: new ObjectId(recordId)
     },
-    { $set: updateFields }
+    {
+      $set: {
+        [`nutritionData.${period}.$`]: updatedRecord
+      }
+    }
   );
 
   if (!updateResult.matchedCount) {
@@ -118,7 +142,7 @@ export const updateNutritionRecord = async (userId, recordId, updatedData) => {
 };
 
 // Delete a nutrition record
-export const deleteNutritionRecord = async (userId, recordId) => {
+export const deleteNutritionRecord = async (userId, recordId, period) => {
   if (!userId || !ObjectId.isValid(userId)) {
     throw new Error('Invalid user ID');
   }
@@ -130,16 +154,11 @@ export const deleteNutritionRecord = async (userId, recordId) => {
   const usersCollection = await users();
   const updateResult = await usersCollection.updateOne(
     { _id: new ObjectId(userId) },
-    { $pull: { nutritionData: { _id: new ObjectId(recordId) } } }
+    { $pull: { [`nutritionData.${period}`]: { _id: new ObjectId(recordId) } } }
   );
 
-  if (!updateResult.matchedCount) {
-    throw new Error('User not found');
-  }
-  
-  if (!updateResult.modifiedCount) {
-    throw new Error('Record not found');
-  }
+  if (!result.modifiedCount) throw new Error('Failed to delete record');
+  return { deleted: true };
 
   return { message: 'Nutrition record deleted successfully' };
 };

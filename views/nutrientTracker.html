@@ -1,10 +1,18 @@
 // Add this just before the closing </body> tag
 <script>
   let userData = [];
+
+  function getSelectedPeriod() {
+    return document.getElementById('tracking-period').value || 'daily';
+  }
+
   
   // Load user's nutrition data when page loads
   async function loadUserData() {
+    const period = getSelectedPeriod();
+
     try {
+
       const response = await fetch('/api/nutrition');
       if (response.ok) {
         userData = await response.json();
@@ -36,6 +44,8 @@
     const carbs = document.getElementById('current-carbs').value;
     const fat = document.getElementById('current-fat').value;
     const today = new Date().toISOString().split('T')[0];
+    const period = getSelectedPeriod();
+
     
     // Check if we already have a record for today
     const todayData = userData.find(record => record.date === today);
@@ -43,14 +53,14 @@
     try {
       if (todayData) {
         // Update existing record
-        await fetch(`/api/nutrition/${todayData._id}`, {
+        await fetch(`/api/nutrition/${todayData._id}?period=${period}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ protein, carbs, fat })
         });
       } else {
         // Create new record
-        await fetch('/api/nutrition', {
+        await fetch('/api/nutrition?period=${period}', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ protein, carbs, fat, date: today })
@@ -63,6 +73,9 @@
       alert('Failed to save data');
     }
   }
+
+  document.getElementById('tracking-period').addEventListener('change', loadUserData);
+
   
   // Add a save button to the form
   const saveButton = document.createElement('button');
