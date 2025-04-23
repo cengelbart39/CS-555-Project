@@ -1,0 +1,49 @@
+<!-- public/addMeal.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Meal</title>
+  <link rel="stylesheet" href="/styles.css"> <!-- Link to your CSS if available -->
+</head>
+<div style="text-align: center; margin-bottom: 20px;">
+  <a href="/nutrientTracker.html">
+    <button type="button" style="
+      background-color: #9c27b0;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    ">
+      Return to Main Page
+    </button>
+  </a>
+</div>
+<body>
+  <h1>Add a Meal</h1>
+  <form id="addMealForm">
+    <label for="mealName">Meal Name:</label>
+    <input type="text" id="mealName" name="mealName" required><br><br>
+
+    <label for="calories">Calories:</label>
+    <input type="number" id="calories" name="calories" required><br><br>
+
+    <label for="protein">Protein (g):</label>
+    <input type="number" id="protein" name="protein"><br><br>
+
+    <label for="carbs">Carbohydrates (g):</label>
+    <input type="number" id="carbs" name="carbs"><br><br>
+
+    <label for="fats">Fats (g):</label>
+    <input type="number" id="fats" name="fats"><br><br>
+
+    <label for="mealDate">Meal Date:</label>
+    <input type="date" id="mealDate" name="mealDate" value=""><br><br>
+
+    <button type="submit">Add Meal</button>
+    <script src="/js/mealTracker.js" defer></script>
+  </form>
+</body>
+</html>
