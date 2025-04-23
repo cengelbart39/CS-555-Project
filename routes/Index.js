@@ -2,7 +2,7 @@
 import authRoutes from './authRoutes.js';
 import nutritionRoutes from './nutritionTrackerRoutes.js';
 import mealTrackerRoutes from './mealTrackerRoutes.js';
-import mealApiRoutes from './mealApiRoutes.js';
+//import mealApiRoutes from './mealApiRoutes.js';
 
 const constructorMethod = (app) => {
   // Auth routes (login, signup, etc.)
@@ -13,11 +13,11 @@ const constructorMethod = (app) => {
 
   app.use('/', mealTrackerRoutes);
 
-  // API routes for meals
+  /*// API routes for meals
   app.use('/api/meals', mealApiRoutes);
 
   app.use('/api/shares', shareRoutes);
-  
+  */
   // 404 route
   app.use('*', (req, res) => {
     res.status(404).send('Not found');
