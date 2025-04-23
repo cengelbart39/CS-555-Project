@@ -39,11 +39,25 @@
     <label for="fats">Fats (g):</label>
     <input type="number" id="fats" name="fats"><br><br>
 
+    <!-- Category selector added for User Story 8 -->
+    <label for="category">Category:</label>
+    <select id="category" name="category" required>
+      <option value="" disabled selected>Choose…</option>
+      <option value="Breakfast">Breakfast</option>
+      <option value="Lunch">Lunch</option>
+      <option value="Dinner">Dinner</option>
+      <option value="Snacks">Snacks</option>
+    </select><br><br>
+    
     <label for="mealDate">Meal Date:</label>
     <input type="date" id="mealDate" name="mealDate" value=""><br><br>
 
     <button type="submit">Add Meal</button>
     <script src="/js/mealTracker.js" defer></script>
   </form>
+  <!-- Container to render meals grouped by category -->
+  <div id="meals-container" style="margin-top:2rem;"></div>
+
+  <script src="/js/mealTracker.js" defer></script>
 </body>
 </html>

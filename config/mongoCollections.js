@@ -19,4 +19,5 @@ const getCollectionFn = (collection) => {
 NOTE: YOU WILL NEED TO CHANGE THE CODE BELOW AND UNCOMMENT IT TO HAVE THE COLLECTION(S) REQUIRED BY THE ASSIGNMENT */
 
 export const users = getCollectionFn('users');
+export const meals  = getCollectionFn('meals');
 export const posts = getCollectionFn('posts');

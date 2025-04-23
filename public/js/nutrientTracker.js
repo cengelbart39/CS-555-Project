@@ -1,3 +1,66 @@
+let userData = [];
+
+function getSelectedPeriod() {
+  return document.getElementById('tracking-period').value || 'daily';
+}
+
+async function loadUserData() {
+  const period = getSelectedPeriod();
+  try {
+    const response = await fetch(`/api/nutrition?period=${period}`);
+    if (response.ok) {
+      userData = await response.json();
+      const today = new Date().toISOString().split('T')[0];
+      const todayData = userData.find(r => r.date === today);
+      if (todayData) {
+        document.getElementById('current-protein').value = todayData.protein;
+        document.getElementById('current-carbs').value   = todayData.carbs;
+        document.getElementById('current-fat').value     = todayData.fat;
+      }
+    }
+  } catch (err) {
+    console.error('Error loading data:', err);
+  }
+  updateBars();
+}
+
+async function loadGoals() {
+  try {
+    const res = await fetch('/api/goals');
+    if (!res.ok) return;
+    const { protein, carbs, fat } = await res.json();
+    document.getElementById('goal-protein').value = protein;
+    document.getElementById('goal-carbs').value   = carbs;
+    document.getElementById('goal-fat').value     = fat;
+  } catch (err) {
+    console.error('Error loading goals:', err);
+  }
+  updateBars();
+}
+
+document.getElementById('save-goals').addEventListener('click', async () => {
+  const fb = document.getElementById('goals-feedback');
+  const payload = {
+    protein: +document.getElementById('goal-protein').value,
+    carbs:   +document.getElementById('goal-carbs').value,
+    fat:     +document.getElementById('goal-fat').value
+  };
+  try {
+    const res = await fetch('/api/goals', {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    fb.textContent = res.ok ? 'Goals saved!' : 'Save failed';
+  } catch (err) {
+    console.error('Error saving goals:', err);
+    fb.textContent = 'Save failed';
+  }
+  updateBars();
+});
+
+document.getElementById('tracking-period').addEventListener('change', loadUserData);
+
 function updateBars() {
     const proteinGoal = document.getElementById('protein-goal').value;
     const currentProtein = document.getElementById('current-protein').value;
@@ -31,9 +94,7 @@ document.getElementById('tracking-period').addEventListener('change', function()
 
 updateBars();
     
-    
-    let userData = [];
-    
+      
     // Load user's nutrition data when page loads
     async function loadUserData() {
       try {
@@ -62,54 +123,59 @@ updateBars();
       }
     }
     
-    // Save nutrition data
-    async function saveNutritionData() {
-      const protein = document.getElementById('current-protein').value;
-      const carbs = document.getElementById('current-carbs').value;
-      const fat = document.getElementById('current-fat').value;
-      const today = new Date().toISOString().split('T')[0];
+    // User Story 10: Save or update today's nutrition data
+async function saveNutritionData() {
+  const protein = document.getElementById('current-protein').value;
+  const carbs   = document.getElementById('current-carbs').value;
+  const fat     = document.getElementById('current-fat').value;
+  const today   = new Date().toISOString().split('T')[0];
+  const period  = getSelectedPeriod();
       
-      // Check if we already have a record for today
-      const todayData = userData.find(record => record.date === today);
-      
-      try {
-        if (todayData) {
-          // Update existing record
-          await fetch(`/api/nutrition/${todayData._id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ protein, carbs, fat })
-          });
-        } else {
-          // Create new record
-          await fetch('/api/nutrition', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ protein, carbs, fat, date: today })
-          });
-        }
-        
-        alert('Data saved successfully!');
-        loadUserData(); // Reload the data after saving
-      } catch (error) {
-        console.error('Error saving data:', error);
-        alert('Failed to save data');
-      }
+  const todayData = userData.find(r => r.date === today);
+
+  try {
+    let res;
+    if (todayData) {
+      res = await fetch(`/api/nutrition/${todayData._id}?period=${period}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ protein, carbs, fat })
+      });
+    } else {
+      res = await fetch(`/api/nutrition?period=${period}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ protein, carbs, fat, date: today })
+      });
     }
+    if (res.ok) {
+      alert('Data saved successfully!');
+      await loadUserData();
+    } else {
+      const errText = await res.text();
+      alert('Failed to save data: ' + errText);
+    }
+  } catch (err) {
+    console.error('Error saving nutrition data:', err);
+    alert('An unexpected error occurred.');
+  }
+}
+  // Add a save button to the form
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save Data';
+  saveButton.style.marginTop = '20px';
+  saveButton.style.padding = '10px';
+  saveButton.style.backgroundColor = '#4caf50';
+  saveButton.style.color = 'white';
+  saveButton.style.border = 'none';
+  saveButton.style.borderRadius = '4px';
+  saveButton.style.cursor = 'pointer';
+  saveButton.onclick = saveNutritionData;
     
-    // Add a save button to the form
-    const saveButton = document.createElement('button');
-    saveButton.textContent = 'Save Data';
-    saveButton.style.marginTop = '20px';
-    saveButton.style.padding = '10px';
-    saveButton.style.backgroundColor = '#4caf50';
-    saveButton.style.color = 'white';
-    saveButton.style.border = 'none';
-    saveButton.style.borderRadius = '4px';
-    saveButton.style.cursor = 'pointer';
-    saveButton.onclick = saveNutritionData;
+  document.body.appendChild(saveButton);
     
-    document.body.appendChild(saveButton);
-    
-    // Load user data when page loads
-    window.addEventListener('DOMContentLoaded', loadUserData);
+  // Load user data and goals when page loads
+  window.addEventListener('DOMContentLoaded', () => {
+    loadGoals();
+    loadUserData();
+  });;

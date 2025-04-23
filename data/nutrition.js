@@ -67,7 +67,7 @@ export const addNutritionRecord = async (userId, protein, carbs, fat, period='da
 
 // Update a nutrition record
 export const updateNutritionRecord = async (userId, recordId, period, updatedData) => {
-  
+
   if (!userId || !ObjectId.isValid(userId)) {
     throw new Error('Invalid user ID');
   }
@@ -161,4 +161,37 @@ export const deleteNutritionRecord = async (userId, recordId, period) => {
   return { deleted: true };
 
   return { message: 'Nutrition record deleted successfully' };
+};
+
+export const getUserMacroGoals = async (userId) => {
+  if (!userId || !ObjectId.isValid(userId)) {
+    throw new Error('Invalid user ID');
+  }
+  const usersCollection = await users();
+  const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user.goals || { protein: 0, carbs: 0, fat: 0 };
+};
+
+export const setUserMacroGoals = async (userId, protein, carbs, fat) => {
+  if (!userId || !ObjectId.isValid(userId)) {
+    throw new Error('Invalid user ID');
+  }
+  [protein, carbs, fat].forEach((v, i) => {
+    if (v === undefined || isNaN(v) || v < 0) {
+      throw new Error('Macro goal values must be non-negative numbers');
+    }
+  });
+
+  const usersCollection = await users();
+  const updateRes = await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
+    { $set: { goals: { protein: parseFloat(protein), carbs: parseFloat(carbs), fat: parseFloat(fat) } } }
+  );
+  if (!updateRes.modifiedCount) {
+    throw new Error('Failed to update macro goals');
+  }
+  return { protein: parseFloat(protein), carbs: parseFloat(carbs), fat: parseFloat(fat) };
 };

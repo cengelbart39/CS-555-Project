@@ -33,7 +33,8 @@ export const createUser = async (username, password, firstName, lastName) => {
     firstName: firstName.trim(),
     lastName: lastName.trim(),
     createdAt: new Date(),
-    nutritionData: [] // Initially empty array to store nutrition records
+    nutritionData: [], // Initially empty array to store nutrition records
+    sharedWith: []
   };
 
   const insertInfo = await usersCollection.insertOne(newUser);
