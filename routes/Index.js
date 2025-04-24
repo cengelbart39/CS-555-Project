@@ -2,6 +2,7 @@
 import authRoutes from './authRoutes.js';
 import nutritionRoutes from './nutritionTrackerRoutes.js';
 import mealTrackerRoutes from './mealTrackerRoutes.js';
+import calendarRoutes from './calendarRoutes.js'
 //import mealApiRoutes from './mealApiRoutes.js';
 
 const constructorMethod = (app) => {
@@ -11,7 +12,9 @@ const constructorMethod = (app) => {
   // API routes for nutrition data
   app.use('/api/nutrition', nutritionRoutes);
 
+  //regular routes
   app.use('/', mealTrackerRoutes);
+  app.use('/', calendarRoutes)
 
   /*// API routes for meals
   app.use('/api/meals', mealApiRoutes);
