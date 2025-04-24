@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Calories Calendar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #4caf50;
+    }
+
+    .calendar-controls {
+      margin-bottom: 10px;
+    }
+
+    .calendar-wrapper {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .day-labels,
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .calendar div {
+      background: white;
+      padding: 10px;
+      border: 1px solid #ddd;
+      min-height: 80px;
+      position: relative;
+    }
+
+    .day-number {
+      font-weight: bold;
+      position: absolute;
+      top: 5px;
+      left: 5px;
+    }
+
+    .calories {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .day-labels div {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calories Calendar</h1>
+
+  <div class="calendar-controls">
+    <label for="month">Month:</label>
+    <select id="month"></select>
+    <label for="year">Year:</label>
+    <select id="year"></select>
+    <button onclick="generateCalendar()">Go</button>
+  </div>
+
+  <div class="calendar-wrapper">
+    <div class="day-labels">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+    <div class="calendar" id="calendar"></div>
+  </div>
+
+  <script src="/js/calendar.js" defer></script>
+</body>
+</html>
