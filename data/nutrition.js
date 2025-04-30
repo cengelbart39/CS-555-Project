@@ -51,7 +51,8 @@ export const addNutritionRecord = async (userId, protein, carbs, fat, period='da
   const usersCollection = await users();
   const updateResult = await usersCollection.updateOne(
     { _id: new ObjectId(userId) },
-    { $push: { ['nutritionData.${period}']: newRecord } }
+    { $push: { [`nutritionData.${period}`]: newRecord } }
+
   );
 
   if (!updateResult.matchedCount) {

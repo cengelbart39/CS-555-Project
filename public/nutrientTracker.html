@@ -3,45 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nutrition Tracker</title>
+    <title>Nutrition Tracker Home</title>
     <style>
-      
         body {
-          font-family: Arial, sans-serif;
-          background-color: #f4f4f9;
-          color: #333;
-          margin: 0;
-          padding: 0;
-        }          
-        h1 {
-        text-align: center;
-        color: #4caf50;
-        margin-top: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
         }
 
-        .bar-container {
-            width: 100%;
-            background-color: #f3f3f3;
-            margin: 20px 0;
-            position: relative;
+        h1 {
+            text-align: center;
+            color: #4caf50;
         }
-        .bar {
-            height: 30px;
-            background-color: #4caf50;
-            width: 0;
-        }
-        .goal-line {
-            position: absolute;
-            height: 30px;
-            width: 2px;
-            background-color: black;
-            top: 0;
-        }
-        /* Style for the logout button */
+
         .logout-container {
             text-align: right;
             margin-bottom: 20px;
         }
+
         .logout-btn {
             background-color: #f44336;
             color: white;
@@ -50,95 +31,132 @@
             border-radius: 4px;
             font-size: 16px;
         }
+
         .logout-btn:hover {
             background-color: #d32f2f;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .nav-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .nav-buttons button:hover {
+            background-color: #1976D2;
+        }
+
+        fieldset {
+            max-width: 400px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        fieldset label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        fieldset input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #save-goals {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #save-goals:hover {
+            background-color: #45a049;
+        }
+
+        #goals-feedback {
+            text-align: center;
+            margin-top: 10px;
+            color: green;
         }
     </style>
 </head>
 <body>
-    <!-- Add logout button here -->
     <div class="logout-container">
         <a href="/logout" class="logout-btn">Logout</a>
     </div>
 
-    <h1>Nutrition Tracker</h1>
+    <h1>Welcome to Your Nutrition Dashboard</h1>
 
-    <!-- User Story 10: Macro Goals panel -->
-    <fieldset id="goals-panel" style="margin:1rem 0; padding:1rem; border:1px solid #ccc;">
-        <legend>Set Macro Goals</legend>
+    <div class="nav-buttons">
+        <a href="/mealTracker"><button>Go to Meal Tracker</button></a>
+        <a href="/calendar"><button>View Calendar</button></a>
+    </div>
+
+    <fieldset>
+        <legend>Set Your Macro Goals</legend>
         <label for="goal-protein">Protein (g):</label>
-        <input type="number" id="goal-protein" value="0"><br>
+        <input type="number" id="goal-protein">
         <label for="goal-carbs">Carbs (g):</label>
-        <input type="number" id="goal-carbs" value="0"><br>
+        <input type="number" id="goal-carbs">
         <label for="goal-fat">Fat (g):</label>
-        <input type="number" id="goal-fat" value="0"><br>
+        <input type="number" id="goal-fat">
         <button type="button" id="save-goals">Save Goals</button>
-        <div id="goals-feedback" aria-live="polite" style="margin-top:.5rem;"></div>
-      </fieldset>
-      
-    <div style="text-align: center; margin-top: 10px;">
-      <a href="/mealtracker">
-        <button type="button" style="
-          background-color: #2196F3;
-          color: white;
-          padding: 10px 20px;
-          font-size: 16px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        ">
-          Go to Meal Tracker
-        </button>
-      </a>
-      <a href="/calendar">
-        <button type="button">View Calendar</button>
-      </a>
-    </div>
+        <div id="goals-feedback" aria-live="polite"></div>
+    </fieldset>
 
-    <div>
-        <label for="tracking-period">Tracking Period: </label>
-        <select id="tracking-period">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-        </select>
-    </div>
+    <script>
+        async function loadGoals() {
+            try {
+                const res = await fetch('/api/nutrition/goals');
+                if (!res.ok) throw new Error('Failed to load goals');
+                const goals = await res.json();
+                document.getElementById('goal-protein').value = goals.protein || 0;
+                document.getElementById('goal-carbs').value = goals.carbs || 0;
+                document.getElementById('goal-fat').value = goals.fat || 0;
+            } catch (err) {
+                console.error(err);
+            }
+        }
 
-    <!-- Protein bar -->
-    <div>
-        <label for="protein">Protein Goal: </label>
-        <input type="number" id="protein-goal" value="100">
-        <label for="protein">Current Protein: </label>
-        <input type="number" id="current-protein" value="80">
-    </div>
-    <div class="bar-container">
-        <div class="bar" id="protein-bar"></div>
-        <div class="goal-line" id="protein-goal-line"></div>
-    </div>
+        document.getElementById('save-goals').addEventListener('click', async () => {
+            const protein = parseFloat(document.getElementById('goal-protein').value) || 0;
+            const carbs = parseFloat(document.getElementById('goal-carbs').value) || 0;
+            const fat = parseFloat(document.getElementById('goal-fat').value) || 0;
 
-    <!-- Carbs bar -->
-    <div>
-        <label for="carbs">Carbs Limit: </label>
-        <input type="number" id="carbs-goal" value="200">
-        <label for="carbs">Current Carbs: </label>
-        <input type="number" id="current-carbs" value="150">
-    </div>
-    <div class="bar-container">
-        <div class="bar" id="carbs-bar"></div>
-        <div class="goal-line" id="carbs-goal-line"></div>
-    </div>
+            try {
+                const res = await fetch('/api/nutrition/goals', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ protein, carbs, fat })
+                });
+                if (!res.ok) throw new Error('Failed to save goals');
+                document.getElementById('goals-feedback').textContent = 'Goals saved successfully!';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('goals-feedback').textContent = 'Failed to save goals.';
+            }
+        });
 
-    <!-- Fat bar -->
-    <div>
-        <label for="fat">Fat Limit: </label>
-        <input type="number" id="fat-goal" value="70">
-        <label for="fat">Current Fat: </label>
-        <input type="number" id="current-fat" value="50">
-    </div>
-    <div class="bar-container">
-        <div class="bar" id="fat-bar"></div>
-        <div class="goal-line" id="fat-goal-line"></div>
-    </div>
-    <script src="/js/nutrientTracker.js" defer></script>
+        window.addEventListener('DOMContentLoaded', loadGoals);
+    </script>
 </body>
 </html>
