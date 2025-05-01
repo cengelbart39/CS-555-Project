@@ -2,6 +2,16 @@ const calendarEl = document.getElementById('calendar');
 const monthSelect = document.getElementById('month');
 const yearSelect = document.getElementById('year');
 
+document.addEventListener('DOMContentLoaded', () => {
+  const backButton = document.getElementById('back-to-main');
+  if (backButton) {
+    backButton.addEventListener('click', () => {
+      window.location.href = '/'; // Adjust if needed
+    });
+  }
+});
+
+// Populate month and year dropdowns
 const today = new Date();
 const currentMonth = today.getMonth();
 const currentYear = today.getFullYear();
@@ -22,13 +32,37 @@ for (let y = currentYear - 5; y <= currentYear + 5; y++) {
   yearSelect.appendChild(option);
 }
 
-function generateCalendar() {
+// Fetch real calorie totals from backend
+async function fetchDailyCalories() {
+  try {
+    const res = await fetch('/api/meals/daily-totals', {
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('Failed to fetch daily totals');
+    const data = await res.json();
+
+    const totals = {};
+    data.forEach(entry => {
+      totals[entry.date] = entry.totalCalories;
+    });
+
+    return totals;
+  } catch (e) {
+    console.error('[ERROR] Fetching daily totals:', e);
+    return {};
+  }
+}
+
+// Generate calendar and apply real data
+async function generateCalendar() {
   calendarEl.innerHTML = ''; // Clear previous calendar
 
   const year = parseInt(yearSelect.value);
   const month = parseInt(monthSelect.value);
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const caloriesByDate = await fetchDailyCalories();
 
   // Fill in empty slots before first day
   for (let i = 0; i < firstDay; i++) {
@@ -44,14 +78,23 @@ function generateCalendar() {
     dayNum.textContent = day;
     cell.appendChild(dayNum);
 
-    // Placeholder for calories for UI purposes. Will eventually be replaced by inputted user data
     const cal = document.createElement('div');
     cal.className = 'calories';
-    cal.textContent = Math.floor(Math.random() * 300 + 2000) + " cal";
-    cell.appendChild(cal);
 
+    const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day
+      .toString()
+      .padStart(2, '0')}`;
+
+    const total = caloriesByDate[dateStr];
+    cal.textContent = total !== undefined ? `${total} cal` : '0 cal';
+
+    cell.appendChild(cal);
     calendarEl.appendChild(cell);
   }
 }
+
+// Regenerate calendar on dropdown change
+monthSelect.addEventListener('change', generateCalendar);
+yearSelect.addEventListener('change', generateCalendar);
 
 window.addEventListener('DOMContentLoaded', generateCalendar);
