@@ -1,12 +1,12 @@
 // routes/nutritionRoutes.js
 import { Router } from 'express';
-import { 
-  getUserNutritionData,
+import {
   addNutritionRecord,
-  updateNutritionRecord,
   deleteNutritionRecord,
   getUserMacroGoals,
+  getUserNutritionData,
   setUserMacroGoals,
+  updateNutritionRecord,
 } from '../data/nutrition.js';
 
 const router = Router();
@@ -46,6 +46,32 @@ router.post('/', async (req, res) => {
   }
 });
 
+// returns { protein, carbs, fat } for current user
+router.get('/goals', async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const goals  = await getUserMacroGoals(userId);
+    res.json(goals);
+  } catch (e) {
+    res.status(500).json({ error: e.message || 'Failed to load macro goals' });
+  }
+});
+
+// saves/updates macro goals
+router.put('/goals', async (req, res) => {
+
+  console.log("entered the goals put");
+
+  try {
+    const userId = req.session.user._id;
+    const { protein, carbs, fat } = req.body;
+    const updated = await setUserMacroGoals(userId, protein, carbs, fat);
+    res.json(updated);
+  } catch (e) {
+    res.status(400).json({ error: e.message || 'Failed to save macro goals' });
+  }
+});
+
 // Update a nutrition record
 router.put('/:id', async (req, res) => {
   try {
@@ -72,35 +98,9 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// returns { protein, carbs, fat } for current user
-router.get('/goals', async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    const goals  = await getUserMacroGoals(userId);
-    res.json(goals);
-  } catch (e) {
-    res.status(500).json({ error: e.message || 'Failed to load macro goals' });
-  }
-});
-
 router.use((req, res, next) => {
   console.log(`[DEBUG] Nutrition router reached: ${req.method} ${req.originalUrl}`);
   next();
-});
-
-// saves/updates macro goals
-router.put('/goals', async (req, res) => {
-
-  console.log("entered the goals put");
-
-  try {
-    const userId = req.session.user._id;
-    const { protein, carbs, fat } = req.body;
-    const updated = await setUserMacroGoals(userId, protein, carbs, fat);
-    res.json(updated);
-  } catch (e) {
-    res.status(400).json({ error: e.message || 'Failed to save macro goals' });
-  }
 });
 
 
