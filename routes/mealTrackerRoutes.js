@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { ObjectId }   from 'mongodb';
 import { meals }      from '../config/mongoCollections.js';
+import { getDailyMealTotals } from '../data/meals.js';
 
 const router = Router();
 
@@ -63,6 +64,16 @@ router.post('/api/meals', async (req, res) => {
     res.status(201).json(newMeal);
   } catch (e) {
     res.status(400).json({ error: e.message });
+  }
+});
+
+router.get('/api/meals/daily-totals', async (req, res) => {
+  try {
+    const totals = await getDailyMealTotals(); // no userId
+    res.json(totals);
+  } catch (e) {
+    console.error('[ERROR] Failed to get daily totals:', e);
+    res.status(500).json({ error: e.message || 'Failed to get daily meal totals' });
   }
 });
 

@@ -19,7 +19,7 @@ const ensureAuthenticated = (req, res, next) => {
   next();
 };
 
-router.use(ensureAuthenticated);
+//router.use(ensureAuthenticated);
 
 // Get all nutrition records for the logged-in user
 router.get('/', async (req, res) => {
@@ -83,8 +83,16 @@ router.get('/goals', async (req, res) => {
   }
 });
 
+router.use((req, res, next) => {
+  console.log(`[DEBUG] Nutrition router reached: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // saves/updates macro goals
 router.put('/goals', async (req, res) => {
+
+  console.log("entered the goals put");
+
   try {
     const userId = req.session.user._id;
     const { protein, carbs, fat } = req.body;
